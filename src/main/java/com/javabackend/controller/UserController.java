@@ -8,6 +8,7 @@ import com.javabackend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/v1")
 @Tag(name = "User Controller")
+@Slf4j(topic = "USER-CONTROLLER")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -87,17 +89,22 @@ public class UserController {
 
     @Operation(summary = "Update user", description = "Api update user to database")
     @PutMapping("/users")
-    public Map<String, Object> updateUser(@RequestBody UserUpdateRequest request) {
+    public ResponseEntity<Map<String, Object>> updateUser(@RequestBody UserUpdateRequest request) {
+        log.info("Update user: {}", request);
+
+        this.userService.update(request);
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("status", HttpStatus.ACCEPTED.value());
         result.put("message", "User updated successfully");
         result.put("data", "");
-        return result;
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(result);
     }
 
     @Operation(summary = "Change password", description = "Api update password user to database")
     @PatchMapping("/users/change-password")
     public Map<String, Object> changePassword(@RequestBody UserPasswordRequest request) {
+        log.info("Changing password for user: {}", request);
+        this.userService.changePassword(request);
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("status", HttpStatus.ACCEPTED.value());
         result.put("message", "Password updated successfully");
@@ -108,6 +115,9 @@ public class UserController {
     @Operation(summary = "Inactivate user", description = "Api activate user from database")
     @DeleteMapping("/users/{userId}")
     public Map<String, Object> deleteUser(@PathVariable Long userId) {
+        log.info("Delete user: {}", userId);
+this.userService.delete(userId);
+
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("status", HttpStatus.NO_CONTENT.value());
         result.put("message", "User deleted successfully");

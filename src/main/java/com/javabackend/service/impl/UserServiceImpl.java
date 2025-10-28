@@ -7,11 +7,13 @@ import com.javabackend.controller.request.UserUpdateRequest;
 import com.javabackend.controller.response.UserResponse;
 import com.javabackend.domain.Address;
 import com.javabackend.domain.User;
+import com.javabackend.exception.ResourceNotFoundException;
 import com.javabackend.repository.AddressRepository;
 import com.javabackend.repository.UserRepository;
 import com.javabackend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,7 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public List<UserResponse> findAll() {
@@ -49,7 +52,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Exception.class)
     public long save(UserCreateRequest req) {
         log.info("Saving user: {}", req);
-        User user  = new User();
+        User user = new User();
         user.setFirstName(req.getFirstName());
         user.setLastName(req.getLastName());
         user.setGender(req.getGender());
@@ -86,17 +89,77 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void update(UserUpdateRequest req) {
+        log.info("Update user: {}", req);
+        //Get user by id
+        User user = this.getUserById(req.getId());
 
+        //Set data
+        user.setFirstName(req.getFirstName());
+        user.setLastName(req.getLastName());
+        user.setGender(req.getGender());
+        user.setBirthday(req.getBirthday());
+        user.setUsername(req.getUsername());
+        user.setEmail(req.getEmail());
+        user.setPhone(req.getPhone());
+
+        // Save to DB
+        this.userRepository.save(user);
+        log.info("Updated user: {}", user);
+
+        // Save address
+        List<Address> addresses = new ArrayList<>();
+        req.getAddresses().forEach(address -> {
+            Address addressEntity = this.addressRepository.findByUserIdAndAddressType(user.getId(), address.getAddressType());
+            if (addressEntity == null) {
+                addressEntity = new Address();
+            }
+            addressEntity.setApartmentNumber(address.getApartmentNumber());
+            addressEntity.setFloor(address.getFloor());
+            addressEntity.setBuilding(address.getBuilding());
+            addressEntity.setStreetNumber(address.getStreetNumber());
+            addressEntity.setStreet(address.getStreet());
+            addressEntity.setCity(address.getCity());
+            addressEntity.setCountry(address.getCountry());
+            addressEntity.setAddressType(address.getAddressType());
+            addressEntity.setUserId(user.getId());
+
+            addresses.add(addressEntity);
+        });
+
+        // Save address
+        this.addressRepository.saveAll(addresses);
+        log.info("Updated addresses: {}", addresses);
     }
 
     @Override
     public void changePassword(UserPasswordRequest req) {
+        log.info("Changing password for user: {}", req);
 
+        User user = this.getUserById(req.getId());
+        if (req.getPassword().equals(req.getConfirmPassword())) {
+            user.setPassword(passwordEncoder.encode(req.getPassword()));
+        }
+        this.userRepository.save(user);
     }
 
     @Override
     public void delete(Long id) {
+        log.info("Deleting user: {}", id);
+        User user = this.getUserById(id);
+        user.setStatus(UserStatus.INACTIVE);
+        this.userRepository.save(user);
+        log.info("Deleted user: {}", user);
 
+    }
+
+    /*
+    * Get user by id
+    * @param id
+    * @return
+    */
+    private User getUserById(Long id) {
+        return this.userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 }
