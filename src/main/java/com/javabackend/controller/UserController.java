@@ -7,10 +7,13 @@ import com.javabackend.controller.response.UserResponse;
 import com.javabackend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.LinkedHashMap;
@@ -21,6 +24,7 @@ import java.util.Map;
 @Tag(name = "User Controller")
 @Slf4j(topic = "USER-CONTROLLER")
 @RequiredArgsConstructor
+@Validated
 public class UserController {
 
     private final UserService userService;
@@ -43,7 +47,7 @@ public class UserController {
 
     @Operation(summary = "Get user detail", description = "Api retrieve user by id from database")
     @GetMapping("/users/{userId}")
-    public Map<String, Object> getUserDetail(@PathVariable Long userId) {
+    public Map<String, Object> getUserDetail(@PathVariable @Min(value = 1, message = "userId must be equals or greater than 1") Long userId) {
         log.info("Get user detail by id: {}", userId);
         UserResponse userDetail = this.userService.findById(userId);
 
@@ -56,18 +60,19 @@ public class UserController {
 
     @Operation(summary = "Create user", description = "Api add new user to database")
     @PostMapping("/users")
-    public ResponseEntity<Map<String, Object>> createUser(@RequestBody UserCreateRequest request) {
+    public ResponseEntity<Map<String, Object>> createUser(@RequestBody @Valid UserCreateRequest request) {
         log.info("Create user request: {}", request);
+        long userResId =  this.userService.save(request);
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("status", HttpStatus.CREATED.value());
         result.put("message", "user created successfully");
-        result.put("data", this.userService.save(request));
+        result.put("data", userResId);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     @Operation(summary = "Update user", description = "Api update user to database")
     @PutMapping("/users")
-    public ResponseEntity<Map<String, Object>> updateUser(@RequestBody UserUpdateRequest request) {
+    public ResponseEntity<Map<String, Object>> updateUser(@RequestBody @Valid UserUpdateRequest request) {
         log.info("Update user: {}", request);
 
         this.userService.update(request);
@@ -80,7 +85,7 @@ public class UserController {
 
     @Operation(summary = "Change password", description = "Api update password user to database")
     @PatchMapping("/users/change-password")
-    public Map<String, Object> changePassword(@RequestBody UserPasswordRequest request) {
+    public Map<String, Object> changePassword(@RequestBody @Valid UserPasswordRequest request) {
         log.info("Changing password for user: {}", request);
         this.userService.changePassword(request);
         Map<String, Object> result = new LinkedHashMap<>();
@@ -92,7 +97,7 @@ public class UserController {
 
     @Operation(summary = "Inactivate user", description = "Api activate user from database")
     @DeleteMapping("/users/{userId}")
-    public Map<String, Object> deleteUser(@PathVariable Long userId) {
+    public Map<String, Object> deleteUser(@PathVariable @Min(value = 1, message = "userId must be equals or greater than 1") Long userId) {
         log.info("Delete user: {}", userId);
         this.userService.delete(userId);
 

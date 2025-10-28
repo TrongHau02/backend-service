@@ -8,6 +8,7 @@ import com.javabackend.controller.response.UserPageResponse;
 import com.javabackend.controller.response.UserResponse;
 import com.javabackend.domain.Address;
 import com.javabackend.domain.User;
+import com.javabackend.exception.InvalidDataException;
 import com.javabackend.exception.ResourceNotFoundException;
 import com.javabackend.repository.AddressRepository;
 import com.javabackend.repository.UserRepository;
@@ -104,6 +105,11 @@ public class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Exception.class)
     public long save(UserCreateRequest req) {
         log.info("Saving user: {}", req);
+
+        User userByEmail = this.userRepository.findByEmail(req.getEmail());
+        if (userByEmail != null) {
+            throw new InvalidDataException("email already exists");
+        }
         User user = new User();
         user.setFirstName(req.getFirstName());
         user.setLastName(req.getLastName());
