@@ -3,12 +3,11 @@ package com.javabackend.service;
 import com.javabackend.controller.request.UserCreateRequest;
 import com.javabackend.controller.request.UserPasswordRequest;
 import com.javabackend.controller.request.UserUpdateRequest;
+import com.javabackend.controller.response.UserPageResponse;
 import com.javabackend.controller.response.UserResponse;
 
-import java.util.List;
-
 public interface UserService {
-    List<UserResponse> findAll();
+    UserPageResponse findAll(String keyword, String sort, int page, int size);
 
     UserResponse findById(Long id);
 

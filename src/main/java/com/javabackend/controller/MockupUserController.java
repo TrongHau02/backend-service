@@ -1,5 +1,6 @@
 package com.javabackend.controller;
 
+import com.javabackend.common.Gender;
 import com.javabackend.controller.request.UserCreateRequest;
 import com.javabackend.controller.request.UserPasswordRequest;
 import com.javabackend.controller.request.UserUpdateRequest;
@@ -28,7 +29,7 @@ public class MockupUserController {
         userResponse1.setId(1L);
         userResponse1.setFirstName("NTH");
         userResponse1.setLastName("Dev");
-        userResponse1.setGender("MALE");
+        userResponse1.setGender(Gender.MALE);
         userResponse1.setBirthday(new Date());
         userResponse1.setUsername("admin");
         userResponse1.setEmail("admin@gmail.com");
@@ -37,7 +38,7 @@ public class MockupUserController {
         userResponse2.setId(2L);
         userResponse2.setFirstName("User");
         userResponse2.setLastName("Client");
-        userResponse2.setGender("FEMALE");
+        userResponse2.setGender(Gender.FEMALE);
         userResponse2.setBirthday(new Date());
         userResponse2.setUsername("client");
         userResponse2.setEmail("user@gmail.com");
@@ -57,7 +58,7 @@ public class MockupUserController {
         userDetail.setId(1L);
         userDetail.setFirstName("NTH");
         userDetail.setLastName("Dev");
-        userDetail.setGender("MALE");
+        userDetail.setGender(Gender.MALE);
         userDetail.setBirthday(new Date());
         userDetail.setUsername("admin");
         userDetail.setEmail("admin@gmail.com");
