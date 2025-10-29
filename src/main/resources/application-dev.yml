@@ -24,6 +24,8 @@ spring:
   sendgrid:
     api-key: ${SENDGRID_API_KEY}
     from-email: ${FROM_EMAIL}
+    template-id: ${TEMPLATE_ID}
+    verification-link: ${VERIFICATION_LINK}
 
 springdoc:
   api-docs:

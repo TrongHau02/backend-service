@@ -15,8 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class AppConfig {
 
-//    @Value("${spring.sendgrid.api-key}")
-    @Value("${SENDGRID_API_KEY}")
+    @Value("${spring.sendgrid.api-key}")
     private String apiKey;
     @Bean
     public PasswordEncoder passwordEncoder() {
