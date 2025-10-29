@@ -21,6 +21,9 @@ spring:
       ddl-auto: update
     properties:
       hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
+  sendgrid:
+    api-key: ${SENDGRID_API_KEY}
+    from-email: ${FROM_EMAIL}
 
 springdoc:
   api-docs:

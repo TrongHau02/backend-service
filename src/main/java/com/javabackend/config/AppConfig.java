@@ -1,5 +1,7 @@
 package com.javabackend.config;
 
+import com.sendgrid.SendGrid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,6 +14,10 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class AppConfig {
+
+//    @Value("${spring.sendgrid.api-key}")
+    @Value("${SENDGRID_API_KEY}")
+    private String apiKey;
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -31,5 +37,10 @@ public class AppConfig {
         return webSecurity -> webSecurity
                 .ignoring()
                 .requestMatchers("/actuator/**", "/v3/**" ,"/webjars/**", "/swagger-ui*/*swagger-initialalizer.js", "/swagger-ui*/**", "/favicon.ico");
+    }
+
+    @Bean
+    public SendGrid sendGrid() {
+        return new SendGrid(apiKey);
     }
 }
